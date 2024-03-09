@@ -7,7 +7,7 @@
 
 extern crate embedded_hal;
 
-use embedded_hal::blocking::i2c::{Write, WriteRead};
+use embedded_hal::i2c::I2c;
 
 /// 7-bit I2C slave address of the HTS221.  Note that the datasheet includes the 8-bit read address
 /// (BFh) and 8-bit write address (BEh).
@@ -38,7 +38,7 @@ impl<'a, Comm> Device<'a, Comm> {
 
 fn read_register<Comm>(dev: &mut Device<Comm>, reg_addr: u8) -> Result<u8, Comm::Error>
 where
-    Comm: WriteRead,
+    Comm: I2c,
 {
     let mut data: [u8; 1] = [0];
     let dev_addr = dev.address();
@@ -48,7 +48,7 @@ where
 
 fn write_register<Comm>(dev: &mut Device<Comm>, reg_addr: u8, bits: u8) -> Result<(), Comm::Error>
 where
-    Comm: Write,
+    Comm: I2c,
 {
     let dev_addr = dev.address();
     dev.comm().write(dev_addr, &[reg_addr, bits])
@@ -56,7 +56,7 @@ where
 
 fn read_register_pair<Comm>(dev: &mut Device<Comm>, reg_addr: u8) -> Result<i16, Comm::Error>
 where
-    Comm: WriteRead,
+    Comm: I2c,
 {
     let mut data: [u8; 2] = [0; 2];
     let dev_addr = dev.address();
@@ -78,7 +78,7 @@ impl WhoAmI {
     /// Blocking read of the WHO_AM_I register from `dev`.
     pub fn new<Comm>(dev: &mut Device<Comm>) -> Result<Self, Comm::Error>
     where
-        Comm: WriteRead,
+        Comm: I2c,
     {
         let bits = read_register(dev, who_am_i::ADDR)?;
         Ok(WhoAmI(bits))
@@ -145,7 +145,7 @@ impl AvConf {
     /// Blocking read of the AV_CONF register from `dev`.
     pub fn new<Comm>(dev: &mut Device<Comm>) -> Result<Self, Comm::Error>
     where
-        Comm: WriteRead,
+        Comm: I2c,
     {
         let bits = read_register(dev, av_conf::ADDR)?;
         Ok(AvConf(bits))
@@ -154,7 +154,7 @@ impl AvConf {
     /// Updates the register using `f`, then writes the new value out to the chip.
     pub fn modify<Comm, F>(&mut self, dev: &mut Device<Comm>, f: F) -> Result<(), Comm::Error>
     where
-        Comm: Write,
+        Comm: I2c,
         F: FnOnce(&mut Self),
     {
         f(self);
@@ -289,7 +289,7 @@ impl CtrlReg1 {
     /// Blocking read of the CTRL_REG1 register from `dev`.
     pub fn new<Comm>(dev: &mut Device<Comm>) -> Result<Self, Comm::Error>
     where
-        Comm: WriteRead,
+        Comm: I2c,
     {
         let bits = read_register(dev, cr1::ADDR)?;
         Ok(CtrlReg1(bits))
@@ -298,7 +298,7 @@ impl CtrlReg1 {
     /// Updates the register using `f`, then writes the new value out to the chip.
     pub fn modify<Comm, F>(&mut self, dev: &mut Device<Comm>, f: F) -> Result<(), Comm::Error>
     where
-        Comm: Write,
+        Comm: I2c,
         F: FnOnce(&mut Self),
     {
         f(self);
@@ -380,7 +380,7 @@ impl CtrlReg2 {
     /// Blocking read of the CTRL_REG2 register from `dev`.
     pub fn new<Comm>(dev: &mut Device<Comm>) -> Result<Self, Comm::Error>
     where
-        Comm: WriteRead,
+        Comm: I2c,
     {
         let bits = read_register(dev, cr2::ADDR)?;
         Ok(CtrlReg2(bits))
@@ -389,7 +389,7 @@ impl CtrlReg2 {
     /// Updates the register using `f`, then writes the new value out to the chip.
     pub fn modify<Comm, F>(&mut self, dev: &mut Device<Comm>, f: F) -> Result<(), Comm::Error>
     where
-        Comm: Write,
+        Comm: I2c,
         F: FnOnce(&mut Self),
     {
         f(self);
@@ -465,7 +465,7 @@ impl CtrlReg3 {
     /// Blocking read of the CTRL_REG3 register from `dev`.
     pub fn new<Comm>(dev: &mut Device<Comm>) -> Result<Self, Comm::Error>
     where
-        Comm: WriteRead,
+        Comm: I2c,
     {
         let bits = read_register(dev, cr3::ADDR)?;
         Ok(CtrlReg3(bits))
@@ -474,7 +474,7 @@ impl CtrlReg3 {
     /// Updates the register using `f`, then writes the new value out to the chip.
     pub fn modify<Comm, F>(&mut self, dev: &mut Device<Comm>, f: F) -> Result<(), Comm::Error>
     where
-        Comm: Write,
+        Comm: I2c,
         F: FnOnce(&mut Self),
     {
         f(self);
@@ -531,7 +531,7 @@ impl StatusReg {
     /// Blocking read of STATUS from `dev`.
     pub fn new<Comm>(dev: &mut Device<Comm>) -> Result<Self, Comm::Error>
     where
-        Comm: WriteRead,
+        Comm: I2c,
     {
         let bits = read_register(dev, status::ADDR)?;
         Ok(StatusReg(bits))
@@ -563,7 +563,7 @@ impl HumidityOut {
     /// combining the registers.
     pub fn new<Comm>(dev: &mut Device<Comm>) -> Result<Self, Comm::Error>
     where
-        Comm: WriteRead,
+        Comm: I2c,
     {
         let bits = read_register_pair(dev, h_out::ADDR)?;
         Ok(HumidityOut(bits))
@@ -590,7 +590,7 @@ impl TemperatureOut {
     /// combining the registers.
     pub fn new<Comm>(dev: &mut Device<Comm>) -> Result<Self, Comm::Error>
     where
-        Comm: WriteRead,
+        Comm: I2c,
     {
         let bits = read_register_pair(dev, t_out::ADDR)?;
         Ok(TemperatureOut(bits))
@@ -632,7 +632,7 @@ impl Calibration {
     /// Blocking read of the calibration registers from `dev`.
     pub fn new<Comm>(dev: &mut Device<Comm>) -> Result<Self, Comm::Error>
     where
-        Comm: WriteRead,
+        Comm: I2c,
     {
         let mut data: [u8; 16] = [0; 16];
         let dev_addr = dev.address();

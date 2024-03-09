@@ -50,7 +50,7 @@ extern crate embedded_hal;
 pub mod device;
 
 use core::marker::PhantomData;
-use embedded_hal::blocking::i2c::{Write, WriteRead};
+use embedded_hal::i2c::I2c;
 
 #[doc(inline)]
 pub use device::av_conf::AvgH;
@@ -80,7 +80,7 @@ pub struct HTS221<Comm, E> {
 
 impl<Comm, E> HTS221<Comm, E>
 where
-    Comm: Write<Error = E> + WriteRead<Error = E>,
+    Comm: I2c<Error = E>,
 {
     pub fn tie<'a>(&self, comm: &'a mut Comm) -> device::Device<'a, Comm> {
         device::Device::new(self.address, comm)
@@ -228,7 +228,7 @@ pub struct Builder<Comm, E> {
 
 impl<Comm, E> Builder<Comm, E>
 where
-    Comm: Write<Error = E> + WriteRead<Error = E>,
+    Comm: I2c<Error = E>,
 {
     /// Initialize a new Builder for an HTS221 that will use `comm` for all communication.
     pub fn new() -> Self {
